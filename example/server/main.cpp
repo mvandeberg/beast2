@@ -20,7 +20,6 @@
 #include <boost/capy/read.hpp>
 #include <boost/corosio/signal_set.hpp>
 #include <boost/http/json/json_sink.hpp>
-#include <boost/http/server/flat_router.hpp>
 #include <boost/http/server/serve_static.hpp>
 #include <boost/http/request_parser.hpp>
 #include <boost/http/serializer.hpp>
@@ -128,7 +127,7 @@ void install_services()
 #endif
 }
 
-class application : public http::router
+class application : public http::router<>
 {
     struct impl;
     impl* impl_;
@@ -136,7 +135,8 @@ class application : public http::router
 public:
     void listen(unsigned short)
     {
-        http::flat_router fr(std::move(*this));
+        http::router<> fr(std::move(
+            static_cast<http::router<>&>(*this)));
     }
 };
 
@@ -165,7 +165,7 @@ int server_main( int argc, char* argv[] )
     corosio::ipv4_address addr;
     corosio::endpoint ep(addr, 0);
 
-    http::router rr1;
+    http::router<> rr1;
     rr1.use( https_redirect() );
 #if 0
     rr1.use( "/api",
@@ -188,7 +188,7 @@ int server_main( int argc, char* argv[] )
             co_return http::route_done;
         });
 #endif
-    http_server hs1(ioc, 40, http::flat_router(std::move(rr1)),
+    http_server hs1(ioc, 40, std::move(rr1),
         http::make_parser_config(http::parser_config(true)),
         http::make_serializer_config(http::serializer_config()));
     auto ec = hs1.bind(corosio::endpoint(ep, 80));
@@ -202,11 +202,11 @@ int server_main( int argc, char* argv[] )
 #ifdef BOOST_COROSIO_HAS_OPENSSL
     corosio::tls_context tls;
     load_server_certificate(tls);
-    http::router rr2;
+    http::router<> rr2;
     rr2.use( http::cors() );
     rr2.use( "/", http::serve_static( argv[2] ) );
     https_server hs2(ioc, std::atoi(argv[1]), tls,
-        http::flat_router(std::move(rr2)),
+        std::move(rr2),
         http::make_parser_config(http::parser_config(true)),
         http::make_serializer_config(http::serializer_config()));
     ec = hs2.bind(corosio::endpoint(ep, 443));
