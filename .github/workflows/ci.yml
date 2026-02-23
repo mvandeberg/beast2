@@ -783,8 +783,8 @@ jobs:
           triplet=${{ matrix.x86 && 'x86-windows-static' || 'x64-windows' }}
           addrmdl=${{ matrix.x86 && '32' || '64' }}
 
-          # This is temporary until we move capy/build/brotli.jam to boost/tools/build
-          echo "import-search ${home}/boost-root/libs/capy/build ;" | sed 's/\/d\//D:\//g' >> user-config.jam
+          # This is temporary until we move http/build/brotli.jam to boost/tools/build
+          echo "import-search ${home}/boost-root/libs/http/build ;" | sed 's/\/d\//D:\//g' >> user-config.jam
 
           echo "using zlib    : : <include>\"${home}/vcpkg-root/installed/${triplet}/include\" <search>\"${home}/vcpkg-root/installed/${triplet}/lib\" <dll-path>\"${home}/vcpkg-root/installed/${triplet}/bin\" <name>zlib                              : <address-model>${addrmdl} ;" | sed 's/\/d\//D:\//g' >> user-config.jam
           echo "using brotli  : : <include>\"${home}/vcpkg-root/installed/${triplet}/include\" <search>\"${home}/vcpkg-root/installed/${triplet}/lib\" <dll-path>\"${home}/vcpkg-root/installed/${triplet}/bin\"                                         : <address-model>${addrmdl} ;" | sed 's/\/d\//D:\//g' >> user-config.jam
