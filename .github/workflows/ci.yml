@@ -168,6 +168,7 @@ jobs:
             shared: true
             build-type: "Release"
             build-cmake: true
+            cxxflags: "-fexperimental-library"
 
           - compiler: "apple-clang"
             version: "*"
@@ -180,6 +181,7 @@ jobs:
             shared: false
             build-type: "RelWithDebInfo"
             ubsan: true
+            cxxflags: "-fexperimental-library"
 
           - compiler: "apple-clang"
             version: "*"
@@ -192,6 +194,7 @@ jobs:
             shared: true
             build-type: "RelWithDebInfo"
             asan: true
+            cxxflags: "-fexperimental-library"
 
           - compiler: "apple-clang"
             version: "*"
@@ -203,6 +206,7 @@ jobs:
             shared: false
             build-type: "Release"
             build-cmake: true
+            cxxflags: "-fexperimental-library"
 
           - compiler: "apple-clang"
             version: "*"
@@ -214,6 +218,7 @@ jobs:
             shared: true
             build-type: "Release"
             build-cmake: true
+            cxxflags: "-fexperimental-library"
 
           # Linux compilers
           #
@@ -853,7 +858,7 @@ jobs:
           ubsan: ${{ matrix.ubsan }}
           shared: ${{ matrix.shared }}
           rtti: ${{ (matrix.is-latest && 'on,off') || 'on' }}
-          cxxflags: ${{ (matrix.asan && '-fsanitize=pointer-subtract') || '' }}
+          cxxflags: ${{ format('{0} {1}', (matrix.asan && '-fsanitize=pointer-subtract') || '', matrix.cxxflags || '') }}
           user-config: ${{ ((startsWith(matrix.runs-on, 'windows') || startsWith(matrix.runs-on, 'macOS')) && format('{0}/user-config.jam', steps.patch.outputs.workspace_root)) || '' }}
           stop-on-error: true
           extra-args: "libs/beast2/example"
